@@ -73,7 +73,6 @@ def generate_random_filename(subsystem):
     filename = f"{sys_number}_{timestamp}.csv"
     return filename
 
-
 # Функция для генерации случайных данных для авто
 def generate_auto_data():
     gender = random.choice(['M', 'F'])

@@ -1,0 +1,6 @@
+telegram>=0.0.1
+setuptools>=69.0.2
+bcrypt>=4.2.0
+Faker>=26.0.0
+transliterate>=1.10.2
+tqdm>=4.66.2
