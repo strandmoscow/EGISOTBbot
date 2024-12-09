@@ -193,6 +193,7 @@ def generate_avia_data():
         dep_time.strftime("%Y-%m-%dT%H:%MZ"), arr_date.strftime("%Y-%m-%dT%H:%MZ")
     ]
 
+
 # Функция для генерации данных для реальных рейсов для авиа
 def generate_true_avia_data():
     routes = [
