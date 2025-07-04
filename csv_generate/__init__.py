@@ -3,17 +3,35 @@ import os
 import random
 from datetime import datetime, timedelta
 from faker import Faker
-from faker_airtravel import AirTravelProvider
+# from faker_airtravel import AirTravelProvider
 from transliterate import translit
 import bcrypt
 from tqdm import tqdm
 
 # Создание экземпляра Faker
 fake = Faker('ru_RU')
-fake.add_provider(AirTravelProvider)
+# fake.add_provider(AirTravelProvider)
 
 # Генерация соли для генерации хеша
-salt = bcrypt.gensalt()
+# salt = bcrypt.gensalt()
+
+routes_avia = [
+    {
+        "routeNumber": "SU1730",
+        "itch": 9160,
+        "routeShortNumber": "1730",
+        "planDepartDate": "2025.04.01 13:35",
+        "planArriveDate": "2025.04.01 21:55",
+        "departAirportNameRu": "SVO",
+        "arriveAirportNameRu": "PKC"
+    }
+]
+
+routes_auto = [
+    {"route_name": "343", "operatorId": "20048",
+     "departPlace": "#23006", "departTime": "2025-04-30T17:20Z",
+     "arrivePlace": "#23017", "arriveTime": "2025-05-01T01:00Z"}
+]
 
 # Заголовки для разных подсистем
 headers_dict = {
@@ -76,14 +94,7 @@ def generate_random_filename(subsystem):
 # Функция для генерации случайных данных для авто
 def generate_auto_data():
     gender = random.choice(['M', 'F'])
-    stations = ["#50520", "#69193", "#46009", "#50468", "#50355",
-                "#24173", "#24125", "#50544", "#46012", "#69186", "#69183"]
-    routes = [
-        {"route_name": "20099", "operatorId": "20072",
-         "departPlace": "#77001", "departTime": "2024-10-01T14:00Z",
-         "arrivePlace": "#78001", "arriveTime": "2024-10-01T16:00Z"}
-    ]
-    route = routes[0]
+    route = routes_auto[0]
 
     time_a = fake.date_time_this_year()
     time_b = time_a + timedelta(hours=10, minutes=15)
@@ -94,7 +105,6 @@ def generate_auto_data():
         birthdate = birthdate_raw
     else:
         birthdate_raw = f'{random.choice(range(1950, 2020))}-XX-XX'
-        birthdate = ''
     pwd = f'{fake.password()}'
 
     return [
@@ -105,7 +115,7 @@ def generate_auto_data():
         route["departPlace"], route["arrivePlace"], random.choice([0, 1, 2]),
         "РОССИЯ", gender, random.choice([0, 1]), random.randint(1, 20),
         fake.phone_number(), fake.email(), fake.user_name(),
-        bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt), f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
+        b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6', f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
         random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]),
         random.randint(1000, 5000), 19,
         route["operatorId"], 20001, route["route_name"],
@@ -116,20 +126,15 @@ def generate_auto_data():
         "A777AA777", "ПАЗ", datetime.now().strftime("%Y-%m-%dT%H:%MZ"), 20
     ]
 
+
 # Функция для генерации данных для реальных рейсов для авто
 def generate_true_auto_data():
     gender = random.choice(['M', 'F'])
     stations = ["#50520", "#69193", "#46009", "#50468", "#50355",
                 "#24173", "#24125", "#50544", "#46012", "#69186", "#69183"]
-    routes = [
-        {"route": "20099", "operatorId": "20072",
-         "departPlace": "#77001", "departDate": "2024-10-01T14:00Z",
-         "arrivePlace": "#78001", "arriveDate": "2024-10-01T16:00Z"},
-        {"route": "#24.77.78", "operatorId": "20072",
-         "departPlace": "#77001", "departDate": "2024-11-08T08:00Z",
-         "arrivePlace": "#78001", "arriveDate": "2024-11-08T20:00Z"}
-    ]
-    route = routes[1]
+
+    route = routes_auto[0]
+
     birthdate_is_correct = True
     if birthdate_is_correct:
         birthdate_raw = fake.date_of_birth(minimum_age=18, maximum_age=90).strftime("%Y-%m-%d")
@@ -144,26 +149,31 @@ def generate_true_auto_data():
     return [
         fake.last_name_male() if gender == 'M' else fake.last_name_female(),
         fake.first_name_male() if gender == 'M' else fake.first_name_female(),
+        # '',
         fake.middle_name_male() if gender == 'M' else fake.middle_name_female(),
-        birthdate_raw, 0, fake.random_number(digits=10, fix_len=True),
+        birthdate_raw,
+        # '',
+        0, fake.random_number(digits=10, fix_len=True),
         route["departPlace"], route["arrivePlace"], 2,
         "РОССИЯ", gender, rec_type, random.randint(1, 20),
         fake.phone_number(), fake.email(), fake.user_name(),
-        bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt), f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
+        b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6', f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
         random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]),
-        random.randint(1000, 5000), operation_code, route["operatorId"], 20001, route["route"],
+        random.randint(1000, 5000), operation_code, route["operatorId"], 20001, route["route_name"],
         random.randint(1, 100), fake.date_time_this_year().strftime("%Y-%m-%dT%H:%MZ"),
         f"A{fake.random_number(digits=7, fix_len=True)}", random.randint(500, 20000),
         "RUB", random.choice(["Эконом", "Бизнес", "Первый"]), fake.name(),
-        route["departDate"], route["arriveDate"], "A777AA777",
+        route["departTime"], route["arriveTime"], "A777AA777",
         "ПАЗ", datetime.now().strftime("%Y-%m-%dT%H:%MZ"), 20
     ]
 
 # Функция для генерации случайных данных для авиа
 def generate_avia_data():
     gender = random.choice(['M', 'F'])
-    city_a = fake.airport_iata()
-    city_b = fake.airport_iata()
+    # city_a = fake.airport_iata()
+    # city_b = fake.airport_iata()
+    city_a = 'DME'
+    city_b = 'LED'
     dep_time = datetime.now() - timedelta(days=random.randint(0, 28), hours=random.randint(0, 19))
     arr_date = dep_time+timedelta(hours=random.randint(0, 19))
     birthdate_is_correct = bool(random.getrandbits(1))
@@ -180,7 +190,7 @@ def generate_avia_data():
         translit(fake.middle_name_male() if gender == 'M' else fake.middle_name_female(), reversed=True),
         birthdate_raw, random.choice([1, 2, 4, 5, 7]), fake.ssn(), city_a, city_b,
         0, 0, gender, random.choice(['RUS']), 1, "", "",
-        fake.phone_number(), fake.email(), fake.user_name(), bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt),
+        fake.phone_number(), fake.email(), fake.user_name(), b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6',
         f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
         random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]),
         random.randint(1000, 9999), random.choice([random.randint(0, 18), 20, 19]),
@@ -196,18 +206,7 @@ def generate_avia_data():
 
 # Функция для генерации данных для реальных рейсов для авиа
 def generate_true_avia_data():
-    routes = [
-        {
-            "routeNumber": "S73741",
-            "itch": 9402,
-            "routeShortNumber": "3741",
-            "planDepartDate": "2024.12.12 14:20",
-            "planArriveDate": "2024.12.12 19:10",
-            "departAirportNameRu": "AYT",
-            "arriveAirportNameRu": "DME"
-        }
-    ]
-    route = routes[0]
+    route = routes_avia[0]
 
     gender = random.choice(['M', 'F'])
     city_a = route["departAirportNameRu"]
@@ -225,14 +224,15 @@ def generate_true_avia_data():
     return [
         translit(fake.last_name_male() if gender == 'M' else fake.last_name_female(), reversed=True),
         translit(fake.first_name_male() if gender == 'M' else fake.first_name_female(), reversed=True),
-        translit(fake.middle_name_male() if gender == 'M' else fake.middle_name_female(), reversed=True),
+        '',
+        # fake.middle_name_male() if gender == 'M' else fake.middle_name_female(),
         birthdate_raw, random.choice([1, 2, 4, 5, 7]), fake.ssn(), city_a, city_b,
         0, 0, gender, random.choice(['RUS']), 1, "", "",
-        fake.phone_number(), fake.email(), fake.user_name(), bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt),
+        fake.phone_number(), fake.email(), fake.user_name(), b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6',
         f'{fake.ipv4_public()} {random.choice(range(1, 9999))}', random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]),
         random.randint(1000, 9999), random.choice([random.randint(0, 18), 20, 19]),
-        fake.date_time_this_month().strftime("%Y-%m-%dT%H:%MZ"), "S7", route['routeShortNumber'],
-        fake.bothify(text='??####'), random.choice(["B", "G", "D", "E", "F"]),
+        fake.date_time_this_month().strftime("%Y-%m-%dT%H:%MZ"), "SU", route['routeShortNumber'],
+        fake.bothify(text='??####'), '',
         random.randint(10000000, 99999999),
         f'{random.randint(1, 32)}{random.choice(["A", "B", "C", "D", "E", "F"])}',
         f"{random.randint(1000, 9999)}.{random.randint(10, 99)}", random.choice(['RUB', 'USD']),
@@ -268,7 +268,7 @@ def generate_ship_data():
         random.choice(['Эконом', 'Бизнес']), random.randint(1000, 9999),
         random.choice(['Победа', 'Крузенштерн']), "РОССИЯ",
         fake.date_time_this_year().strftime("%Y-%m-%dT%H:%MZ"), "Инфофлот", fake.phone_number(),
-        fake.email(), fake.user_name(), bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt),
+        fake.email(), fake.user_name(), b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6',
         f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
         random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]), random.randint(1000, 5000),
         fake.credit_card_number(), random.randint(1000, 9999), random.choice(['RUB', 'USD']),
@@ -307,7 +307,7 @@ def generate_rail_data():
         fake.date_time_this_year().isoformat(), random.randint(1, 30),
         random.randint(1, 10), random.randint(1, 5), random.randint(1, 5),
         random.randint(1, 5), fake.phone_number(), fake.email(),
-        fake.user_name(), bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt),
+        fake.user_name(), b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6',
         f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
         random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]),
         random.randint(1000, 5000), fake.credit_card_number(), random.randint(1000, 5000),
@@ -346,7 +346,7 @@ def generate_true_rail_data():
         fake.date_time_this_year().strftime("%Y-%m-%dT%H:%MZ"), random.randint(1, 10),
         random.randint(1, 10), random.randint(1, 5), random.randint(1, 5),
         random.randint(1, 5), fake.phone_number(), fake.email(),
-        fake.user_name(), bcrypt.hashpw(bytes(fake.password(), 'utf-8'), salt),
+        fake.user_name(), b'$2b$12$25K/w7JMQ/1pzULZx/y0sufo55oS1vG9n0z1CEm4r1xEvUH0dkAV6',
         f'{fake.ipv4_public()} {random.choice(range(1, 9999))}',
         random.choice(["ПАО Сбербанк", "АО \"АЛЬФА-БАНК\"", "АО \"ТБанк\""]),
         random.randint(1000, 5000), fake.credit_card_number(), random.randint(1000, 5000),
@@ -374,7 +374,7 @@ def generate_csv(subsystem, headers, rows, output_dir):
 # Генерация случайных строк данных для выбранной подсистемы
 def generate_random_rows(subsystem, num_rows):
     rows = []
-    for _ in tqdm(range(num_rows)):
+    for _ in range(num_rows):
         if subsystem == 'auto':
             rows.append(generate_auto_data())
         elif subsystem == 'avia':
@@ -390,7 +390,7 @@ def generate_random_rows(subsystem, num_rows):
 
 def generate_true_data(subsystem, num_rows):
     rows = []
-    for _ in tqdm(range(num_rows)):
+    for _ in range(num_rows):
         if subsystem == 'auto':
             rows.append(generate_true_auto_data())
         elif subsystem == 'avia':
@@ -408,20 +408,20 @@ def generate_true_data(subsystem, num_rows):
 def generate_multiple_files(subsystem, num_files, num_rows, true_data):
     output_dir = os.path.join('out', subsystem)
     headers = headers_dict[subsystem]
-    for _ in range(num_files):
+    for _ in tqdm(range(num_files)):
         if true_data:
             rows = generate_true_data(subsystem, num_rows)
         else:
             rows = generate_random_rows(subsystem, num_rows)
         file_name = generate_csv(subsystem, headers, rows, output_dir)
-        print(f'CSV файл {file_name} успешно создан в директории {output_dir}.')
+        # print(f'CSV файл {file_name} успешно создан в директории {output_dir}. ')
 
 
 # Пример использования
 if __name__ == "__main__":
     true_data = True
     tags = ['auto', 'avia', 'ship', 'rail']  # 'auto', 'avia', 'ship', 'rail'
-    num_files = 1  # Количество файлов для генерации
+    num_files = 10  # Количество файлов для генерации
     num_rows = 10
     for subsystem in tags:
         generate_multiple_files(subsystem, num_files, num_rows, true_data)
