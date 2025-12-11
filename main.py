@@ -55,7 +55,7 @@ def get_api_key(filename: str) -> str:
 
 
 def zip_directory(directory, zip_file):
-    """Функция для создания zip-архива с сохранением структуры папок."""
+    """Функция для саоздания zip-архива с сохранением структуры папок."""
     try:
         with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
             for root, _, files in os.walk(directory):
