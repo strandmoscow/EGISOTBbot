@@ -1,0 +1,17 @@
+services:
+  bot:
+    build: .
+    container_name: egisotbbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    working_dir: /app
+    command: python main.py
+    volumes:
+      - ./data:/app/data
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge

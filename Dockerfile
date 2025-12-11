@@ -1,9 +1,13 @@
-FROM python:3.8
-# set work directory
-WORKDIR /usr/src/app/
-# copy project
-COPY . /usr/src/app/
-# install dependencies
-RUN pip install requirements.txt
-# run app
+FROM python:3.11-slim
+
+# Устанавливаем top и другие утилиты
+RUN apt-get update && apt-get install -y \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+
 CMD ["python", "main.py"]
