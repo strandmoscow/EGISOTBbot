@@ -1,6 +1,7 @@
 import csv
 import zipfile
 import os
+from dotenv import load_dotenv
 import logging
 from ftplib import FTP
 from telegram import Update, ReplyKeyboardMarkup
@@ -43,15 +44,16 @@ logger = logging.getLogger(__name__)
 
 # Открытие файла и получение API ключа
 def get_api_key(filename: str) -> str:
+    load_dotenv()
+
     try:
-        with open(filename, mode='r', newline='') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if row['Name'] == "tg":
-                    return row['Key']
+        telegram_token = os.getenv('TELEGRAM_TOKEN')
+        if not telegram_token:
+            raise ValueError("API_KEY не найден в .env файле")
     except Exception as e:
         logger.error(f"Ошибка при чтении API ключа: {e}")
-    return None
+        return ''
+    return telegram_token
 
 
 def zip_directory(directory, zip_file):
